@@ -16,51 +16,51 @@ library(tensorflow)
 library(caret)
 ```
 
+#Data wrangling
 ```{r}
 df1 <- Proper_Columns %>%
-   dplyr::select(percent_change_earnings, childcare,start_dt, participation_dt, exit_dt, ninety_days_past_exit, planned_end_dt, runaway_youth, pregnant_youth, at_risk, gender_cd, msfw, cm_claimant_flag) %>%
-  mutate(completion = case_when(start_dt != exit_dt ~ 1, is.na(start_dt) == TRUE ~ 0)) 
+   dplyr::select(percent_change_earnings, childcare,start_dt, participation_dt, exit_dt, ninety_days_past_exit, planned_end_dt, runaway_youth, pregnant_youth, at_risk, gender_cd, msfw, cm_claimant_flag) %>% #Selecting columns needed
+  mutate(completion = case_when(start_dt != exit_dt ~ 1, is.na(start_dt) == TRUE ~ 0)) #Creating completion column again (NAs deleted again later in code)
 ```
 
+#Preparing for data split
 ```{r}
-#df1$completion <- as.factor(df1$completion)
-index1 <- createDataPartition(df1$completion, p=0.8, list=FALSE)
-final.training1 <- df1[index1,]
-final.test1 <- df1[-index1,]
-# write_csv(final.training1, "C:\\Users\\kateb\\Downloads\\finaltrainingCOMPLETION.csv")
+index1 <- createDataPartition(df1$completion, p=0.8, list=FALSE) #Preparing for split
+final.training1 <- df1[index1,] #Creating training dataset with 80% of data (effort to help results)
+final.test1 <- df1[-index1,] #Creating testing dataset with 20% of data
+# write_csv(final.training1, "C:\\Users\\kateb\\Downloads\\finaltrainingCOMPLETION.csv") #Creates files of subsets for computer, not important for modeling
 # write_csv(final.test1, "C:\\Users\\kateb\\Downloads\\finaltestingCOMPLETION.csv")
 ```
 
 ```{r}
-#completion <- as.factor(final.training1$completion)
- 
-         #levels(completion)
 final.training1 <- final.training1 %>%
   dplyr::select(percent_change_earnings, completion, childcare, runaway_youth, pregnant_youth, at_risk, gender_cd, msfw, cm_claimant_flag) %>%
-  na.omit(final.training1)
+  na.omit(final.training1) #Selecting columns and omitting NA values
  
 final.test1 <- final.test1 %>%
   dplyr::select(percent_change_earnings, completion, childcare, runaway_youth, pregnant_youth, at_risk, gender_cd, msfw, cm_claimant_flag) %>%
-  na.omit(final.test1)
+  na.omit(final.test1) #Selecting columns and omitting NA values
 ```
 
+#Scaling data for modeling 
 ```{r}
-#completion <- as.factor(final.training1$completion)
 X_train <- final.training1 %>% 
-  select(-completion) %>% 
+  select(-completion) %>% #Contains all columns excluding completion
   scale()
   
 y_train <- to_categorical(final.training1$completion)
 ```
 
+#scaling data for later comparison
 ```{r}
 X_test <- final.test1 %>% 
-  select(-completion) %>% 
+  select(-completion) %>% #Contains all columns excluding completion
   scale()
 
 y_test <- to_categorical(final.test1$completion)
 ```
 
+#Modeling process
 ```{r}
 model <- keras_model_sequential() 
 
@@ -72,32 +72,36 @@ model %>%
   layer_dense(units = 2, activation = 'sigmoid')
 
 history <- model %>% compile(
-  loss = 'binary_crossentropy',
+  loss = 'binary_crossentropy', #Setting type of modeling
   optimizer = 'adam',
-  metrics = c('accuracy')
+  metrics = c('accuracy') #Setting metric to accuracy, R2 cannot be used with binary response variables
 )
 
 model %>% fit(
   X_train, y_train, 
-  epochs = 50, 
-  batch_size = 10,
-  validation_split = 0.3
+  epochs = 50, #50 iterations of the computer seeing the training data
+  batch_size = 10, #10 training examples utilized in one iteration (epoch)
+  validation_split = 0.3 #Sets apart other 30% data as another precaution to avoid overfitting and create the best possible model
 )
 ```
 
+#Observing performance of model on testing data
 ```{r}
 model %>% evaluate(X_test, y_test)
 ```
 
 ```{r}
-predictions <- model %>% predict_classes(X_test)
+predictions <- model %>% predict_classes(X_test) #Making testing data predictions
 final.test1$completion = as.numeric(final.test1$completion)
 pcompletion <- predictions[1:16988]
 fcompletion <- final.test1$completion[1:16988]
- #qplot(pcompletion, fcompletion, geom=("boxplot"), xlab = "Predictions", ylab = "Observations", main = "Model Performance")
+ 
+
+#Making confusion matrix to observe true and false predictions versus observations
 confusion_matrix <- table(factor(predictions, levels=min(final.test1$completion):max(final.test1$completion)),factor(final.test1$completion, levels=min(final.test1$completion):max(final.test1$completion)))
 confusion_matrix_plot <- as.data.frame(table(pcompletion, fcompletion))
 
+#Plotting confusion matrix results 
 ggplot(data = confusion_matrix_plot,
        mapping = aes(x = pcompletion,
                      y = fcompletion, xlab = "", ylab = "")) +
