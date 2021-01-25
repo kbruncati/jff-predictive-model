@@ -1,0 +1,136 @@
+---
+title: "JFF"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(ggplot2)
+library(keras)
+library(tensorflow)
+library(caret)
+library(randomForest)
+library(reticulate)
+library(glmnet)
+#py_install('pandas')
+#py_install("numpy")
+```
+
+#Predicting completion and qtr_wage_amount
+#Importing data and wrangling
+```{r}
+ df <- Proper_Columns %>%
+   dplyr::select(percent_change_earnings, childcare, exit_dt, ninety_days_past_exit, qtr_wage_amt, exit_dt, ninety_days_past_exit, runaway_youth, pregnant_youth, at_risk, gender_cd, msfw, cm_claimant_flag, start_dt) %>%
+    na.omit(df) %>%
+    mutate(completion = case_when(start_dt != exit_dt ~ 1, is.na(start_dt) == TRUE ~ 0))
+```
+
+```{r}
+index <- createDataPartition(df$percent_change_earnings, p=0.7, list=FALSE)
+final.training <- df[index,]
+final.test <- df[-index,]
+# write_csv(final.training, "C:\\Users\\kateb\\Downloads\\finaltrainingWAGES.csv")
+# write_csv(final.test, "C:\\Users\\kateb\\Downloads\\finaltestingWAGES.csv")
+```
+
+```{r}
+
+final.training <- final.training %>%
+  dplyr::select(percent_change_earnings, childcare, qtr_wage_amt, runaway_youth, pregnant_youth, at_risk, gender_cd, msfw, cm_claimant_flag, completion)
+
+final.test <- final.test %>%
+  dplyr::select(percent_change_earnings, childcare, qtr_wage_amt, runaway_youth, pregnant_youth, at_risk, gender_cd, msfw, cm_claimant_flag, completion)
+```
+
+```{r}
+set.seed(1234)
+trControl = trainControl()
+tuneGrid <- expand.grid(.mtry = c(2: 9))
+rf_mtry <- train(percent_change_earnings~.,
+    data = final.training,
+    method = "rf",
+    metric = "RMSE",
+    tuneGrid = tuneGrid,
+    trControl = trControl,
+    importance = TRUE,
+    nodesize = 14,
+    ntree = 300)
+print(rf_mtry)
+```
+
+```{r}
+max(rf_mtry$results$Rsquared)
+```
+
+```{r}
+best_mtry <- rf_mtry$bestTune$mtry 
+store_maxnode <- list()
+tuneGrid <- expand.grid(.mtry = best_mtry)
+for (maxnodes in c(5: 15)) {
+    set.seed(1234)
+    rf_maxnode <- train(percent_change_earnings~.,
+        data = final.training,
+        method = "rf",
+        metric = "RMSE",
+        tuneGrid = tuneGrid,
+        trControl = trainControl(),
+        importance = TRUE,
+        nodesize = 14,
+        maxnodes = maxnodes,
+        ntree = 300)
+    current_iteration <- toString(maxnodes)
+    store_maxnode[[current_iteration]] <- rf_maxnode
+}
+results_mtry <- resamples(store_maxnode)
+summary(results_mtry)
+```
+
+```{r}
+store_maxtrees <- list()
+for (ntree in c(250, 300, 350, 400, 450, 500, 550, 600)) {
+    set.seed(5678)
+    rf_maxtrees <- train(percent_change_earnings~.,
+        data = final.training,
+        method = "rf",
+        metric = "RMSE",
+        tuneGrid = tuneGrid,
+        trControl = trainControl(),
+        importance = TRUE,
+        nodesize = 14,
+        maxnodes = 15,
+        ntree = ntree)
+    key <- toString(ntree)
+    store_maxtrees[[key]] <- rf_maxtrees
+}
+results_tree <- resamples(store_maxtrees)
+summary(results_tree)
+```
+
+```{r}
+tuneGrid <- expand.grid(.mtry = best_mtry)
+fit_rf <- train(percent_change_earnings~.,
+    final.training,
+    method = "rf",
+    metric = "RMSE",
+    tuneGrid = tuneGrid,
+    trControl = trainControl(),
+    importance = TRUE,
+    nodesize = 14,
+    ntree = 350,
+    maxnodes = 15)
+```
+
+```{r}
+prediction <- predict(fit_rf, newdata = final.test)
+R2(prediction, final.test)
+```
+
+```{r}
+ppercent <- prediction[1:13543]
+fpercent <- final.test$percent_change_earnings
+qplot(ppercent, fpercent, geom=c("point", "smooth"), xlab = "Predictions", ylab = "Observations", main = "Model Performance")
+```

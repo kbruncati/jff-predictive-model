@@ -1,0 +1,109 @@
+---
+title: "bigjoin2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(ggplot2)
+library(keras)
+library(tensorflow)
+library(caret)
+```
+
+```{r}
+df1 <- Proper_Columns %>%
+   dplyr::select(percent_change_earnings, childcare,start_dt, participation_dt, exit_dt, ninety_days_past_exit, planned_end_dt, runaway_youth, pregnant_youth, at_risk, gender_cd, msfw, cm_claimant_flag) %>%
+  mutate(completion = case_when(start_dt != exit_dt ~ 1, is.na(start_dt) == TRUE ~ 0)) 
+```
+
+```{r}
+#df1$completion <- as.factor(df1$completion)
+index1 <- createDataPartition(df1$completion, p=0.8, list=FALSE)
+final.training1 <- df1[index1,]
+final.test1 <- df1[-index1,]
+# write_csv(final.training1, "C:\\Users\\kateb\\Downloads\\finaltrainingCOMPLETION.csv")
+# write_csv(final.test1, "C:\\Users\\kateb\\Downloads\\finaltestingCOMPLETION.csv")
+```
+
+```{r}
+#completion <- as.factor(final.training1$completion)
+ 
+         #levels(completion)
+final.training1 <- final.training1 %>%
+  dplyr::select(percent_change_earnings, completion, childcare, runaway_youth, pregnant_youth, at_risk, gender_cd, msfw, cm_claimant_flag) %>%
+  na.omit(final.training1)
+ 
+final.test1 <- final.test1 %>%
+  dplyr::select(percent_change_earnings, completion, childcare, runaway_youth, pregnant_youth, at_risk, gender_cd, msfw, cm_claimant_flag) %>%
+  na.omit(final.test1)
+```
+
+```{r}
+#completion <- as.factor(final.training1$completion)
+X_train <- final.training1 %>% 
+  select(-completion) %>% 
+  scale()
+  
+y_train <- to_categorical(final.training1$completion)
+```
+
+```{r}
+X_test <- final.test1 %>% 
+  select(-completion) %>% 
+  scale()
+
+y_test <- to_categorical(final.test1$completion)
+```
+
+```{r}
+model <- keras_model_sequential() 
+
+model %>% 
+  layer_dense(units = 256, activation = 'relu', input_shape = ncol(X_train)) %>% 
+  layer_dropout(rate = 0.4) %>% 
+  layer_dense(units = 128, activation = 'relu') %>%
+  layer_dropout(rate = 0.3) %>%
+  layer_dense(units = 2, activation = 'sigmoid')
+
+history <- model %>% compile(
+  loss = 'binary_crossentropy',
+  optimizer = 'adam',
+  metrics = c('accuracy')
+)
+
+model %>% fit(
+  X_train, y_train, 
+  epochs = 50, 
+  batch_size = 10,
+  validation_split = 0.3
+)
+```
+
+```{r}
+model %>% evaluate(X_test, y_test)
+```
+
+```{r}
+predictions <- model %>% predict_classes(X_test)
+final.test1$completion = as.numeric(final.test1$completion)
+pcompletion <- predictions[1:16988]
+fcompletion <- final.test1$completion[1:16988]
+ #qplot(pcompletion, fcompletion, geom=("boxplot"), xlab = "Predictions", ylab = "Observations", main = "Model Performance")
+confusion_matrix <- table(factor(predictions, levels=min(final.test1$completion):max(final.test1$completion)),factor(final.test1$completion, levels=min(final.test1$completion):max(final.test1$completion)))
+confusion_matrix_plot <- as.data.frame(table(pcompletion, fcompletion))
+
+ggplot(data = confusion_matrix_plot,
+       mapping = aes(x = pcompletion,
+                     y = fcompletion, xlab = "", ylab = "")) +
+  geom_tile(aes(fill = Freq)) +
+  geom_text(aes(label = sprintf("%1.0f", Freq)), vjust = 1) +
+  scale_fill_gradient(low = "blue",
+                      high = "red",
+                      trans = "log") 
+```
+
