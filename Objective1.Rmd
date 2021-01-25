@@ -1,8 +1,9 @@
 ---
-title: "JFF"
+title: "JFF_Objective1"
 output: pdf_document
 ---
 
+#Loading packages needed
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
@@ -20,32 +21,31 @@ library(glmnet)
 #py_install("numpy")
 ```
 
-#Predicting completion and qtr_wage_amount
-#Importing data and wrangling
 ```{r}
- df <- Proper_Columns %>%
-   dplyr::select(percent_change_earnings, childcare, exit_dt, ninety_days_past_exit, qtr_wage_amt, exit_dt, ninety_days_past_exit, runaway_youth, pregnant_youth, at_risk, gender_cd, msfw, cm_claimant_flag, start_dt) %>%
-    na.omit(df) %>%
-    mutate(completion = case_when(start_dt != exit_dt ~ 1, is.na(start_dt) == TRUE ~ 0))
+ df <- Columns_Used_In_RStudio %>% #Data was previously downloaded and imported as a data frame via RStudio
+   dplyr::select(percent_change_earnings, childcare, exit_dt, ninety_days_past_exit, qtr_wage_amt, exit_dt, ninety_days_past_exit, runaway_youth, pregnant_youth, at_risk, gender_cd, msfw, cm_claimant_flag, start_dt) %>% #Selecting columns from dataframe needed for modeling
+    na.omit(df) %>% #Omitting rows with NA values
+    mutate(completion = case_when(start_dt != exit_dt ~ 1, is.na(start_dt) == TRUE ~ 0)) #Creating the completion column (the second condition is more of a placeholder for sake of syntax as NAs were just eradicated in the previous line)
 ```
 
 ```{r}
-index <- createDataPartition(df$percent_change_earnings, p=0.7, list=FALSE)
-final.training <- df[index,]
-final.test <- df[-index,]
-# write_csv(final.training, "C:\\Users\\kateb\\Downloads\\finaltrainingWAGES.csv")
+index <- createDataPartition(df$percent_change_earnings, p=0.7, list=FALSE) #Preparing data split into training and testing subsets
+final.training <- df[index,] #Creation of training dataset with 70% of the data
+final.test <- df[-index,] #Creation of testing dataset with 30% of the data to be omitted from the training process
+# write_csv(final.training, "C:\\Users\\kateb\\Downloads\\finaltrainingWAGES.csv") #Lines for saving datasets to computer, not required for modeling process
 # write_csv(final.test, "C:\\Users\\kateb\\Downloads\\finaltestingWAGES.csv")
 ```
 
 ```{r}
 
 final.training <- final.training %>%
-  dplyr::select(percent_change_earnings, childcare, qtr_wage_amt, runaway_youth, pregnant_youth, at_risk, gender_cd, msfw, cm_claimant_flag, completion)
+  dplyr::select(percent_change_earnings, childcare, qtr_wage_amt, runaway_youth, pregnant_youth, at_risk, gender_cd, msfw, cm_claimant_flag, completion) #Selecting columns to use as predictors and percent_change_earnings as the response variable
 
 final.test <- final.test %>%
-  dplyr::select(percent_change_earnings, childcare, qtr_wage_amt, runaway_youth, pregnant_youth, at_risk, gender_cd, msfw, cm_claimant_flag, completion)
+  dplyr::select(percent_change_earnings, childcare, qtr_wage_amt, runaway_youth, pregnant_youth, at_risk, gender_cd, msfw, cm_claimant_flag, completion) #Same as above to make sure datasets are identical for future analysis
 ```
 
+#First training process: finding ideal number of randomly sampled variables, .mtry
 ```{r}
 set.seed(1234)
 trControl = trainControl()
@@ -62,10 +62,7 @@ rf_mtry <- train(percent_change_earnings~.,
 print(rf_mtry)
 ```
 
-```{r}
-max(rf_mtry$results$Rsquared)
-```
-
+#Second training process: finding ideal amount of maxnodes
 ```{r}
 best_mtry <- rf_mtry$bestTune$mtry 
 store_maxnode <- list()
@@ -89,6 +86,7 @@ results_mtry <- resamples(store_maxnode)
 summary(results_mtry)
 ```
 
+#Third training process: finding ideal amount of trees by testing between 250 and 600
 ```{r}
 store_maxtrees <- list()
 for (ntree in c(250, 300, 350, 400, 450, 500, 550, 600)) {
@@ -110,6 +108,7 @@ results_tree <- resamples(store_maxtrees)
 summary(results_tree)
 ```
 
+#Final training process: inputting all ideal amounts previously deduced to create the best possible model with nodesize 14, 30 trees, 15 maxnodes 
 ```{r}
 tuneGrid <- expand.grid(.mtry = best_mtry)
 fit_rf <- train(percent_change_earnings~.,
@@ -125,10 +124,11 @@ fit_rf <- train(percent_change_earnings~.,
 ```
 
 ```{r}
-prediction <- predict(fit_rf, newdata = final.test)
-R2(prediction, final.test)
+prediction <- predict(fit_rf, newdata = final.test) #Having the model predict percent_change_earnings in omitted final.test dataset
+R2(prediction, final.test) #Printing the R2 results of the predictions
 ```
 
+#Creating the data visualization to observe the graphical behavior/correlation between predictions and observed values
 ```{r}
 ppercent <- prediction[1:13543]
 fpercent <- final.test$percent_change_earnings
