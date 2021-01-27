@@ -22,10 +22,10 @@ postq2earnings| the participant's earnings Q2 post-exit
 Two columns were created to assist in completing the objectives: `completion` (whether or not the participant completed the training program based on start and end dates) and `percent_change_earnings` (the percent increase or decrease in the participant's wage post-exit determined via the Q1 and Q2 earnings information).
 
 # Wrangling and Preparation
-Data was wrangled and prepared for the training process with help from features of Domo as well as within RStudio itself.
+Data were wrangled and prepared for the training process with help from features of Domo as well as within RStudio itself.
 
 * Joining the data
-Data was joined with DataFusion in Domo which is specialized to work with larger datasets. The datasets were joined via `customer_ID` column present in all datasets.
+Data were joined with DataFusion in Domo which is specialized to work with larger datasets. The datasets were joined via `customer_ID` column present in all datasets.
 
 * Making the new columns
 `completion` and `percent_change_earnings` were created within RStudio via the `mutate` function which simply calls for the desired column name and the conditions to determine its values.
@@ -35,3 +35,6 @@ In Domo, Magic ETLs were used to de-select undesirable columns so that exporting
 
 * Filtering data
 Rows were filtered for those only in training (which equates to an input of 1 in the `training_flag` column) via Magic ETL in Domo. RStudio's `na.omit` function helped to remove NAs.
+
+* Splitting data
+Training and testing datasets were made via RStudio's `caret` package. 
