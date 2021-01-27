@@ -19,19 +19,19 @@ pregnant_youth| whether or not the participant was pregnant youth
 postq1earnings| the participant's earnings Q1 post-exit
 postq2earnings| the participant's earnings Q2 post-exit
  
-Two columns were created to assist in completing the objectives: completion (whether or not the participant completed the training program based on start and end dates) and percent_change_earnings (the percent increase or decrease in the participant's wage post-exit determined via the Q1 and Q2 earnings information).
+Two columns were created to assist in completing the objectives: `completion` (whether or not the participant completed the training program based on start and end dates) and `percent_change_earnings` (the percent increase or decrease in the participant's wage post-exit determined via the Q1 and Q2 earnings information).
 
 # Wrangling and Preparation
 Data was wrangled and prepared for the training process with help from features of Domo as well as within RStudio itself.
 
 * Joining the data
-Data was joined with DataFusion in Domo which is specialized to work with larger datasets. The datasets were joined via customer_ID columns.
+Data was joined with DataFusion in Domo which is specialized to work with larger datasets. The datasets were joined via `customer_ID` column present in all datasets.
 
 * Making the new columns
-Completion and percent_change_earnings were created within RStudio via the "mutate" function which simply calls for the desired column name and the conditions to determine its values.
+`completion` and `percent_change_earnings` were created within RStudio via the `mutate` function which simply calls for the desired column name and the conditions to determine its values.
 
 * Shrinking data
 In Domo, Magic ETLs were used to de-select undesirable columns so that exporting took up less computer space.
 
 * Filtering data
-Rows were filtered for those only in training (which equates to an input of 1 in the `code(training_flag)` column) via Magic ETL in Domo. RStudio's `code(na.omit)` function helped to remove NAs.
+Rows were filtered for those only in training (which equates to an input of 1 in the `training_flag` column) via Magic ETL in Domo. RStudio's `na.omit` function helped to remove NAs.
