@@ -19,3 +19,4 @@ pregnant_youth| whether or not the participant was pregnant youth
 postq1earnings| the participant's earnings Q1 post-exit
 postq2earnings| the participant's earnings Q2 post-exit
  
+Two columns were created to assist in completing the objectives: completion (whether or not the participant completed the training program based on start and end dates) and percent_change_earnings (the percent increase or decrease in the participant's wage post-exit determined via the Q1 and Q2 earnings information).
