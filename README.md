@@ -43,3 +43,7 @@ Data were wrangled and prepared for the training process with help from features
 * Splitting data
 
   Training and testing datasets were made via RStudio's `caret` package. 
+  
+# Modeling Choices
+
+## Objective #1: Random Forest Regression ##
