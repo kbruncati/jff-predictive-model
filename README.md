@@ -46,4 +46,8 @@ Data were wrangled and prepared for the training process with help from features
   
 # Modeling Choices
 
+The objectives were dealt with separately as the first called for prediction of specific values (the `percent_change_earnings` of the participant) whereas the second simply called for a binary response for `completion`.
+
 ## Objective #1: Random Forest Regression ##
+
+Random forest regression was 
