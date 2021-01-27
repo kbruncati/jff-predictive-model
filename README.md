@@ -25,3 +25,13 @@ Two columns were created to assist in completing the objectives: completion (whe
 Data was wrangled and prepared for the training process with help from features of Domo as well as within RStudio itself.
 
 * Joining the data
+Data was joined with DataFusion in Domo which is specialized to work with larger datasets. The datasets were joined via customer_ID columns.
+
+* Making the new columns
+Completion and percent_change_earnings were created within RStudio via the "mutate" function which simply calls for the desired column name and the conditions to determine its values.
+
+* Shrinking data
+In Domo, Magic ETLs were used to de-select undesirable columns so that exporting took up less computer space.
+
+* Filtering data
+Rows were filtered for those only in training (which equates to an input of 1 in the `code(training_flag)` column) via Magic ETL in Domo. RStudio's `code(na.omit)` function helped to remove NAs.
