@@ -54,4 +54,4 @@ Random forest regression was done via the `randomForest` package in RStudio. Thi
 
 ## Objective #2: Binary Classification/Cross Entropy ##
 
-Packages originally used in Python, `tensorflow` and `keras` were imported to execute binary classification within RStudio. During the training process, each iteration of the computer viewing the data can be closely monitored with accuracy and loss measures, which was very helpful in troubleshooting. Averages are taken after the iterations are complete and helps to optimize the model. It was also very easy to view the results by developing a confusion matrix once prediction on the testing dataset was done.
+Packages originally used in Python, `tensorflow` and `keras`, were imported to execute binary classification within RStudio. During the training process, each iteration of the computer viewing the data can be closely monitored with accuracy and loss measures, which was very helpful in troubleshooting. Averages are taken after the iterations are complete and helps to optimize the model. It was also very easy to view the results by developing a confusion matrix once prediction on the testing dataset was done.
