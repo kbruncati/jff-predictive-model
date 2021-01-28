@@ -34,7 +34,7 @@ Data were wrangled and prepared for the training process with help from features
 
 * **Shrinking data**
 
-  In Domo, Magic ETLs were used to de-select undesirable columns so that exporting took up less computer space.
+  In Domo, Magic ETLs were used to de-select undesirable columns so that exporting took up less computer space. The final ETL used in Domo was accidentally left titled as `New ETL transform` (last run on January 16, 2021) which led to the final dataset of `Data Used In RStudio`.
 
 * **Filtering data**
 
