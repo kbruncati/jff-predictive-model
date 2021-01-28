@@ -25,7 +25,7 @@ df1 <- Proper_Columns %>%
 
 #Preparing for data split
 ```{r}
-index1 <- createDataPartition(df1$completion, p=0.8, list=FALSE) #Preparing for split
+index1 <- createDataPartition(df1$completion, p=0.7, list=FALSE) #Preparing for split
 final.training1 <- df1[index1,] #Creating training dataset with 80% of data (effort to help results)
 final.test1 <- df1[-index1,] #Creating testing dataset with 20% of data
 # write_csv(final.training1, "C:\\Users\\kateb\\Downloads\\finaltrainingCOMPLETION.csv") #Creates files of subsets for computer, not important for modeling
