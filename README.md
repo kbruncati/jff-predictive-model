@@ -43,8 +43,9 @@ Data were wrangled and prepared for the training process with help from features
 * **Splitting data**
 
   Training and testing datasets were made via RStudio's `caret` package. These datasets were downloaded from R to upload into Domo, and are named as follows:
-  Objective #1 - `finaltrainingwages.csv`, `finaltestingwages.csv`
-  Objective #2 - `finaltrainingcompletion.csv`, `finaltestingcompletion.csv`
+  * Objective #1 - `finaltrainingwages.csv`, `finaltestingwages.csv`
+  
+  * Objective #2 - `finaltrainingcompletion.csv`, `finaltestingcompletion.csv`
   
 # Modeling Choices
 
