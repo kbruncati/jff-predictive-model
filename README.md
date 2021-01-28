@@ -34,11 +34,11 @@ Data were wrangled and prepared for the training process with help from features
 
 * **Shrinking data**
 
-  In Domo, Magic ETLs were used to de-select undesirable columns so that exporting took up less computer space. The final ETL used in Domo was accidentally left titled as `New ETL transform` (last run on January 16, 2021) which led to the final dataset of `Data Used In RStudio`.
+  In Domo, Magic ETLs were used to de-select undesirable columns so that exporting took up less computer space. The final ETL used in Domo was accidentally left titled as `New ETL Transform` (last run on January 16, 2021) which led to the final dataset of `Data Used In RStudio` by de-selecting undesirable columns in `Add Training - COMBINED EARNINGS AND CHILD CARE 1-earnings 2010` to make the output `Data Used In RStudio`.
 
 * **Filtering data**
 
-  Rows were filtered for those only in training (which equates to an input of 1 in the `training_flag` column) via Magic ETL in Domo. RStudio's `na.omit` function helped to remove NAs.
+  Rows were filtered for those only in training (which equates to an input of 1 in the `training_flag` column) via RStudio's `filter` function. RStudio's `na.omit` function helped to remove NAs.
 
 * **Splitting data**
 
