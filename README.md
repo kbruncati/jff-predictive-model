@@ -47,6 +47,8 @@ Data were wrangled and prepared for the training process with help from features
   
   * Objective #2 - `finaltrainingcompletion.csv`, `finaltestingcompletion.csv`
   
+After completing these steps, the final dataset was saved within Domo under the title `Proper Columns`, which can also be seen from the code.
+  
 # Modeling Choices
 
 The objectives were dealt with separately as the first called for prediction of specific values (the `percent_change_earnings` of the participant) whereas the second simply called for a binary response for `completion`.
