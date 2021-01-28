@@ -47,7 +47,7 @@ Data were wrangled and prepared for the training process with help from features
   
   * Objective #2 - `finaltrainingcompletion.csv`, `finaltestingcompletion.csv`
   
-**After completing these steps, the final dataset was saved within Domo under the title `Proper Columns`, which can also be seen from the code.**
+**After completing these steps, the final dataset was saved within Domo under the title `Data Used In RStudio`, which can also be seen from the code.**
   
 # Modeling Choices
 
