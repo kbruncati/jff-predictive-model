@@ -26,7 +26,7 @@ Data were wrangled and prepared for the training process with help from features
 
 * **Joining the data**
 
-  Data were joined with DataFusion in Domo which is specialized to work with larger datasets. The datasets were joined via `customer_ID` column present in all datasets. The datasets joined together were titled `earnings_15_19_edited`, `Childcare_2020.xlsx`, `training provider and program.xlsx`, and `earnings_2010_14.xlsx`.
+  Data were joined with DataFusion in Domo which is specialized to work with larger datasets. The datasets were joined via `customer_ID` column present in all datasets. The   datasets joined together were titled `earnings_15_19_edited`, `Childcare_2020.xlsx`, `training provider and program.xlsx`, and `earnings_2010_14.xlsx`. An initial DataFusion titled `Combined Earnings and Child Care` brought together the first two documents, then another titled `Add Training` incorporated the third, and the final join was `Add Training - COMBINED EARNINGS AND CHILD CARE 1-earnings_2010`. 
 
 * **Making the new columns**
 
